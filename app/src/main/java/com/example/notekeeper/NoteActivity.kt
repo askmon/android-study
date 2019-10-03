@@ -22,6 +22,9 @@ class NoteActivity : AppCompatActivity() {
         val courses:List<CourseInfo> = DataManager.getInstance().courses
 
         val adapterCourses:ArrayAdapter<CourseInfo> = ArrayAdapter(this, android.R.layout.simple_spinner_item, courses)
+        adapterCourses.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        spinnerCourses.adapter = adapterCourses
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

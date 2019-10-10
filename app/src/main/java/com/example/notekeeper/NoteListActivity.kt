@@ -1,6 +1,7 @@
 package com.example.notekeeper
 
 import android.os.Bundle
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import com.google.android.material.snackbar.Snackbar
@@ -31,6 +32,10 @@ class NoteListActivity : AppCompatActivity() {
             android.R.layout.simple_list_item_1, notes)
 
         listNotes.adapter = adapterNotes
+
+        listNotes.setOnItemClickListener{ parent, view, position, id ->
+            
+        }
     }
 
 }

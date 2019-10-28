@@ -1,5 +1,6 @@
 package com.example.notekeeper
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -34,7 +35,8 @@ class NoteListActivity : AppCompatActivity() {
         listNotes.adapter = adapterNotes
 
         listNotes.setOnItemClickListener{ parent, view, position, id ->
-            
+            var intent: Intent = Intent(this@NoteListActivity, NoteActivity::class.java)
+            startActivity(intent)
         }
     }
 

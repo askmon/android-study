@@ -2,6 +2,7 @@ package com.example.notekeeper
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
@@ -18,8 +19,7 @@ class NoteListActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            startActivity(Intent(this@NoteListActivity, NoteActivity::class.java))
         }
 
         initializeDisplayContent()
@@ -35,7 +35,9 @@ class NoteListActivity : AppCompatActivity() {
         listNotes.adapter = adapterNotes
 
         listNotes.setOnItemClickListener{ parent, view, position, id ->
+            val note:NoteInfo = listNotes.getItemAtPosition(position) as NoteInfo
             var intent: Intent = Intent(this@NoteListActivity, NoteActivity::class.java)
+            intent.putExtra(NoteActivity.NOTE_INFO, note)
             startActivity(intent)
         }
     }

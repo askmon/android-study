@@ -2,11 +2,8 @@ package com.example.notekeeper
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.ContactsContract
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 
 import kotlinx.android.synthetic.main.activity_note_list.*
@@ -35,9 +32,8 @@ class NoteListActivity : AppCompatActivity() {
         listNotes.adapter = adapterNotes
 
         listNotes.setOnItemClickListener{ parent, view, position, id ->
-            val note:NoteInfo = listNotes.getItemAtPosition(position) as NoteInfo
             var intent: Intent = Intent(this@NoteListActivity, NoteActivity::class.java)
-            intent.putExtra(NoteActivity.NOTE_INFO, note)
+            intent.putExtra(NoteActivity.NOTE_POSITION, position)
             startActivity(intent)
         }
     }

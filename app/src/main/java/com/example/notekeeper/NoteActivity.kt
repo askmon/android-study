@@ -2,7 +2,6 @@ package com.example.notekeeper
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu
 import android.view.MenuItem
@@ -14,18 +13,37 @@ import kotlinx.android.synthetic.main.activity_note.*
 
 class NoteActivity : AppCompatActivity() {
     companion object {
-        const val NOTE_INFO = "com.example.notekeeper.NOTE_INFO"
+        const val NOTE_POSITION = "com.example.notekeeper.NOTE_POSITION"
+        const val POSITION_NOT_SET = -1
     }
 
     var note: NoteInfo? = null
     var isNewNote = true
+
+    private val spinner: Spinner
+        get() {
+            val spinnerCourses: Spinner = findViewById(R.id.spinner_courses)
+            return spinnerCourses
+        }
+
+    private val title: EditText
+        get() {
+            val title: EditText = findViewById(R.id.text_note_title)
+            return title
+        }
+
+    private val text: EditText
+        get() {
+            val text: EditText = findViewById(R.id.text_note_text)
+            return text
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_note)
         setSupportActionBar(toolbar)
 
-        val spinnerCourses:Spinner = findViewById(R.id.spinner_courses)
+        val spinnerCourses: Spinner = spinner
 
         val courses:List<CourseInfo> = DataManager.getInstance().courses
 
@@ -35,9 +53,6 @@ class NoteActivity : AppCompatActivity() {
         spinnerCourses.adapter = adapterCourses
 
         readDisplayStateValues()
-
-        val title: EditText = findViewById(R.id.text_note_title)
-        val text: EditText = findViewById(R.id.text_note_text)
 
         if (!isNewNote)
             displayNote(spinnerCourses, title, text)
@@ -51,15 +66,19 @@ class NoteActivity : AppCompatActivity() {
         title.setText(note!!.title)
     }
 
+
     private fun readDisplayStateValues() {
         val intent: Intent = intent
-        note = intent.getParcelableExtra(NOTE_INFO)
-        isNewNote = note == null
+        val position = intent.getIntExtra(NOTE_POSITION, POSITION_NOT_SET)
+        isNewNote = position == POSITION_NOT_SET
+        if(!isNewNote) {
+            note = DataManager.getInstance().notes[position]
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
-//        menuInflater.inflate(R.menu.menu_note, menu)
+        menuInflater.inflate(R.menu.menu_note, menu)
         return true
     }
 
@@ -68,8 +87,18 @@ class NoteActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_send_email -> { sendEmail(); return true; }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun sendEmail() {
+        val course: CourseInfo = spinner.selectedItem as CourseInfo
+        val subject = title.text.toString()
+        val emailText = "Checkout what I blebleble ${course.title} \n ${text.text}"
+        val intent = Intent(Intent.ACTION_SEND).setType("message/rfc2822")
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject)
+        intent.putExtra(Intent.EXTRA_TEXT, emailText)
+        startActivity(intent)
     }
 }

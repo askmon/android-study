@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
+import androidx.core.content.ContextCompat.startActivity
 
 import kotlinx.android.synthetic.main.activity_note.*
 
@@ -19,6 +20,11 @@ class NoteActivity : AppCompatActivity() {
 
     var note: NoteInfo? = null
     var isNewNote = true
+    var notePosition = 0
+    var isCancelling = false
+    var originalNoteCourseId = ""
+    var originalNoteTitle = ""
+    var originalNoteText = ""
 
     private val spinner: Spinner
         get() {
@@ -53,9 +59,17 @@ class NoteActivity : AppCompatActivity() {
         spinnerCourses.adapter = adapterCourses
 
         readDisplayStateValues()
+        saveOriginalNoteValues()
 
         if (!isNewNote)
             displayNote(spinnerCourses, title, text)
+    }
+
+    private fun saveOriginalNoteValues() {
+        if(isNewNote) return
+        originalNoteCourseId = note!!.course.courseId
+        originalNoteTitle = note!!.title
+        originalNoteText = note!!.text
     }
 
     private fun displayNote(spinnerCourses: Spinner, title: EditText, text: EditText) {
@@ -71,9 +85,42 @@ class NoteActivity : AppCompatActivity() {
         val intent: Intent = intent
         val position = intent.getIntExtra(NOTE_POSITION, POSITION_NOT_SET)
         isNewNote = position == POSITION_NOT_SET
-        if(!isNewNote) {
+        if(isNewNote) {
+            createNewNote()
+        } else
             note = DataManager.getInstance().notes[position]
         }
+
+    private fun createNewNote() {
+        val dm = DataManager.getInstance()
+        notePosition = dm.createNewNote()
+        note = dm.notes[notePosition]
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if(isCancelling) {
+            if(isNewNote) {
+                DataManager.getInstance().removeNote(notePosition)
+            } else {
+                storePreviousNoteValues()
+            }
+        } else {
+            saveNote()
+        }
+    }
+
+    private fun storePreviousNoteValues() {
+        val course = DataManager.getInstance().getCourse(originalNoteCourseId)
+        note!!.course = course
+        note!!.title = originalNoteTitle
+        note!!.text = originalNoteText
+    }
+
+    private fun saveNote() {
+        note!!.course = spinner.selectedItem as CourseInfo
+        note!!.title = title.text.toString()
+        note!!.text = text.text.toString()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -88,6 +135,11 @@ class NoteActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_send_email -> { sendEmail(); return true; }
+            R.id.action_cancel -> {
+                isCancelling = true
+                finish()
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

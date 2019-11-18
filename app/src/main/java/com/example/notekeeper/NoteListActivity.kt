@@ -22,11 +22,18 @@ class NoteListActivity : AppCompatActivity() {
         initializeDisplayContent()
     }
 
+    var adapterNotes: ArrayAdapter<NoteInfo>? = null
+
+    override fun onResume() {
+        super.onResume()
+        adapterNotes!!.notifyDataSetChanged()
+    }
+
     private fun initializeDisplayContent() {
         val listNotes:ListView = findViewById(R.id.list_note)
         val notes:List<NoteInfo> = DataManager.getInstance().notes
 
-        val adapterNotes:ArrayAdapter<NoteInfo> = ArrayAdapter(this,
+        adapterNotes = ArrayAdapter(this,
             android.R.layout.simple_list_item_1, notes)
 
         listNotes.adapter = adapterNotes
